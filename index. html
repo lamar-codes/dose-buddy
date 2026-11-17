@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#105548">
+<title>DOSE BUDDY | Smart Health Companion</title>
+
+<style>
+:root {
+ --green:#087d68; --dark:#104b40; --mint:#e8f5f0;
+ --bg:#f4f8f6; --white:#fff; --text:#203c35;
+ --muted:#82948d; --border:#e5eee9; --gold:#e9a64b;
+ --red:#d96b6b; --shadow:0 8px 28px #1741350c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{
+ width:245px;flex-shrink:0;background:var(--dark);color:white;
+ padding:24px 15px;position:sticky;top:0;height:100vh;
+ display:flex;flex-direction:column;overflow:auto
+}
+.brand{font-size:22px;font-weight:800;padding:5px 10px}
+.brand span{color:#85e0bd}
+.brand-sub{font-size:11px;color:#b9d9cd;padding:5px 12px 25px}
+.nav-label{font-size:10px;color:#9fc7b8;padding:15px 12px 7px}
+.nav-btn{
+ display:flex;align-items:center;gap:12px;width:100%;
+ background:transparent;color:#e0eee8;border:0;border-radius:11px;
+ padding:13px;text-align:right;font-size:13px;margin:3px 0
+}
+.nav-btn:hover,.nav-btn.active{background:#ffffff1c;color:white}
+.nav-icon{font-size:19px;width:25px;text-align:center}
+.side-bottom{margin-top:auto;color:#a8c9bd;font-size:10px;line-height:2;padding:15px}
+.main{flex:1;min-width:0;max-width:1550px;margin:auto;padding:25px 30px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:25px}
+.topbar h1{font-size:23px;color:var(--dark);margin:0 0 6px}
+.topbar p{font-size:11px;color:var(--muted);margin:0}
+.top-actions{display:flex;gap:8px;align-items:center}
+.btn{
+ border:0;border-radius:10px;background:var(--green);color:white;
+ padding:11px 16px;font-size:12px;font-weight:bold;transition:.2s
+}
+.btn:hover{filter:brightness(.93);transform:translateY(-1px)}
+.btn.soft{background:var(--mint);color:var(--dark)}
+.btn.white{background:white;color:var(--dark)}
+.btn.red{background:#fff0f0;color:#b84f4f}
+.btn.small{padding:8px 11px;font-size:11px}
+.lang{background:white;border:1px solid var(--border);padding:10px;border-radius:10px}
+.page{display:none;animation:fade .2s}
+.page.active{display:block}
+@keyframes fade{from{opacity:.5}to{opacity:1}}
+.hero{
+ background:linear-gradient(110deg,#104b40,#0b8b70);
+ border-radius:22px;padding:30px;color:white;display:flex;
+ justify-content:space-between;align-items:center;gap:20px;
+ min-height:190px;box-shadow:var(--shadow)
+}
+.hero-content{max-width:600px}
+.hero small{color:#bfe9d9;font-size:11px}
+.hero h2{font-size:25px;line-height:1.5;margin:12px 0}
+.hero p{font-size:13px;line-height:2;color:#d6eee5}
+.hero img{width:180px;height:145px;object-fit:cover;border-radius:17px;border:3px solid #ffffff33}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:20px 0}
+.stat,.panel,.well-card{
+ background:white;border:1px solid var(--border);
+ border-radius:16px;padding:18px;box-shadow:var(--shadow)
+}
+.stat-label{font-size:11px;color:var(--muted)}
+.stat-icon{float:left;font-size:20px;background:var(--mint);padding:9px;border-radius:11px}
+.stat-number{font-size:28px;font-weight:bold;color:var(--dark);margin:15px 0 4px}
+.stat-note{font-size:10px;color:var(--muted)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:23px 0 13px}
+.section-head h2{font-size:17px;color:var(--dark);margin:0}
+.section-head p{font-size:11px;color:var(--muted);margin:5px 0 0}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:15px}
+.panel h3{font-size:14px;color:var(--dark);margin:0 0 15px}
+.med-row,.record-row{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;padding:13px 0;border-bottom:1px solid #edf2ef
+}
+.med-row:last-child,.record-row:last-child{border:0}
+.med-info{display:flex;align-items:center;gap:10px;min-width:0}
+.med-icon{width:42px;height:42px;display:grid;place-items:center;background:var(--mint);border-radius:12px;font-size:20px;flex-shrink:0}
+.med-info strong{font-size:12px;display:block;margin-bottom:5px}
+.med-info small{font-size:10px;color:var(--muted)}
+.status{font-size:10px;padding:6px 9px;border-radius:20px;background:#e7f5ee;color:#18835f;white-space:nowrap}
+.status.pending{background:#fff4df;color:#a97822}
+.status.late{background:#fff0f0;color:#bd5555}
+.status.snoozed{background:#edf1ff;color:#6575b1}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.field label{font-size:11px;color:#587068}
+.field input,.field select{
+ width:100%;padding:12px;border:1px solid var(--border);
+ border-radius:10px;background:white;outline:none;font-size:12px;color:var(--text)
+}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.empty{text-align:center;padding:22px;color:var(--muted);font-size:12px;line-height:2}
+.notice{background:#fff8e9;border:1px solid #f2e8cf;border-radius:12px;padding:13px;color:#80652b;font-size:11px;line-height:2;margin-top:15px}
+.info{background:#edf7f3;border-radius:12px;padding:13px;color:#416b5c;font-size:11px;line-height:2}
+table{width:100%;border-collapse:collapse;min-width:450px;font-size:11px}
+th,td{text-align:right;padding:12px;border-bottom:1px solid var(--border)}
+th{color:var(--muted)}
+.table-wrap{overflow-x:auto}
+.chart-wrap{height:240px}
+canvas{width:100%;height:100%}
+.well-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.well-card{padding:0;overflow:hidden}
+.well-card img{width:100%;height:135px;object-fit:cover}
+.well-body{padding:14px}
+.well-body h3{font-size:13px;margin:0 0 7px}
+.well-body p{font-size:11px;line-height:1.8;color:var(--muted);min-height:38px}
+.device-area{background:linear-gradient(140deg,#eaf5f0,#f7fbf9);padding:25px;border-radius:15px;display:grid;place-items:center}
+.device{
+ width:175px;height:215px;border-radius:29px;
+ background:linear-gradient(145deg,#1a5145,#092f29);
+ box-shadow:inset 0 0 0 7px #286657,0 18px 30px #123d3525;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;color:white
+}
+.device-screen{background:#bcebd4;color:#14513e;padding:17px;border-radius:9px;text-align:center;font-size:11px;line-height:2}
+.led{width:10px;height:10px;border-radius:50%;background:#5be0a7;margin-top:15px;box-shadow:0 0 12px #5be0a7}
+.device-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.quiz-option{
+ display:block;width:100%;text-align:right;padding:12px;margin:6px 0;
+ border:1px solid var(--border);border-radius:10px;background:#f3f8f6;font-size:12px;color:var(--text)
+}
+.quiz-option:hover{background:var(--mint);border-color:var(--green)}
+.footer{border-top:1px solid var(--border);margin-top:30px;padding:20px;text-align:center;font-size:10px;color:var(--muted);line-height:2}
+.toast{
+ display:none;position:fixed;bottom:20px;left:20px;z-index:20;
+ background:#103d35;color:white;padding:14px 18px;border-radius:12px;
+ font-size:12px;box-shadow:var(--shadow);max-width:85%
+}
+.toast.show{display:block}
+@media(max-width:950px){
+ .sidebar{width:75px;padding:18px 7px}
+ .brand,.brand-sub,.nav-label,.nav-text,.side-bottom{display:none}
+ .nav-btn{justify-content:center;padding:13px 5px}
+ .main{padding:20px 15px}
+}
+@media(max-width:700px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .grid2,.device-grid{grid-template-columns:1fr}
+ .well-grid{grid-template-columns:1fr 1fr}
+ .hero img{width:105px;height:115px}
+ .hero{padding:20px}
+ .hero h2{font-size:19px}
+}
+@media(max-width:470px){
+ .main{padding:14px 10px}
+ .topbar h1{font-size:16px}
+ .topbar p{font-size:9px}
+ .top-actions{flex-direction:column}
+ .hero img{width:75px;height:90px}
+ .hero p{font-size:11px}
+ .form-grid{grid-template-columns:1fr}
+ .well-grid{grid-template-columns:1fr}
+ .stat{padding:13px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar">
+ <div class="brand">✚ DOSE <span>BUDDY</span></div>
+ <div class="brand-sub">رفيقك الصحي الذكي</div>
+
+ <div class="nav-label">القائمة الرئيسية</div>
+ <button class="nav-btn active" onclick="go('home',this)"><span class="nav-icon">⌂</span><span class="nav-text">الرئيسية</span></button>
+ <button class="nav-btn" onclick="go('meds',this)"><span class="nav-icon">💊</span><span class="nav-text">إدارة الأدوية</span></button>
+ <button class="nav-btn" onclick="go('schedule',this)"><span class="nav-icon">◷</span><span class="nav-text">جدول الجرعات</span></button>
+ <button class="nav-btn" onclick="go('history',this)"><span class="nav-icon">▤</span><span class="nav-text">سجل الجرعات</span></button>
+ <button class="nav-btn" onclick="go('glucose',this)"><span class="nav-icon">♡</span><span class="nav-text">متابعة السكر</span></button>
+
+ <div class="nav-label">تجربة DOSE BUDDY</div>
+ <button class="nav-btn" onclick="go('device',this)"><span class="nav-icon">🤖</span><span class="nav-text">الجهاز الذكي</span></button>
+ <button class="nav-btn" onclick="go('fun',this)"><span class="nav-icon">✦</span><span class="nav-text">ركن العافية والترفيه</span></button>
+ <button class="nav-btn" onclick="go('settings',this)"><span class="nav-icon">⚙</span><span class="nav-text">الإعدادات</span></button>
+
+ <div class="side-bottom">DOSE BUDDY<br>SMART HEALTH PROTOTYPE<br>2026</div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div>
+  <h1 id="welcome">مرحباً بك في DOSE BUDDY</h1>
+  <p id="date"></p>
+ </div>
+ <div class="top-actions">
+  <button class="lang" onclick="toggleLang()">عربي / EN</button>
+  <button class="btn small" onclick="go('meds')">＋ إضافة دواء</button>
+ </div>
+</header>
+
+<!-- HOME -->
+<section class="page active" id="home">
+ <div class="hero">
+  <div class="hero-content">
+   <small>رعاية ذكية · تنظيم أسهل · حياة أفضل</small>
+   <h2>رحلتك الصحية تستحق رفيقاً يهتم بالتفاصيل</h2>
+   <p>نساعدك على تنظيم مواعيد أدويتك وتسجيل قراءاتك الصحية في تجربة رقمية بسيطة وواضحة.</p>
+   <button class="btn white" onclick="go('meds')">ابدأ الآن ←</button>
+  </div>
+  <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80" alt="Healthcare">
+ </div>
+
+ <div class="stats">
+  <div class="stat"><span class="stat-icon">💊</span><div class="stat-label">الأدوية المسجلة</div><div class="stat-number" id="sMeds">0</div><div class="stat-note">إجمالي الأدوية</div></div>
+  <div class="stat"><span class="stat-icon">✓</span><div class="stat-label">جرعات مؤكدة اليوم</div><div class="stat-number" id="sTaken">0</div><div class="stat-note">تأكيدات اليوم</div></div>
+  <div class="stat"><span class="stat-icon">◷</span><div class="stat-label">جرعات غير مؤكدة</div><div class="stat-number" id="sPending">0</div><div class="stat-note">حسب الجدول اليومي</div></div>
+  <div class="stat"><span class="stat-icon">♡</span><div class="stat-label">قراءات مسجلة</div><div class="stat-number" id="sReadings">0</div><div class="stat-note">إجمالي القراءات</div></div>
+ </div>
+
+ <div class="grid2">
+  <div class="panel"><h3>مواعيد أدويتك اليوم</h3><div id="homeMeds"></div></div>
+  <div class="panel">
+   <h3>رسالة اليوم 🌿</h3>
+   <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80" alt="Wellness" style="width:100%;height:125px;object-fit:cover;border-radius:12px">
+   <p style="font-size:12px;line-height:2;color:var(--muted)">التنظيم اليومي يساعدك على متابعة أدويتك وبياناتك بوضوح.</p>
+   <button class="btn soft small" onclick="go('fun')">اكتشف ركن العافية</button>
+  </div>
+ </div>
+ <div class="notice">تنبيه: هذا نموذج أولي تجريبي للتنظيم والتذكير فقط، وليس جهازاً طبياً أو بديلاً عن الطبيب. أدخل الأدوية وفق الوصفة الطبية.</div>
+</section>
+
+<!-- MEDS -->
+<section class="page" id="meds">
+ <div class="section-head"><div><h2>إدارة الأدوية</h2><p>أضف أدويتك ونظّم مواعيدها</p></div></div>
+ <div class="panel">
+  <h3 id="formTitle">إضافة دواء جديد</h3>
+  <form id="medForm">
+   <input type="hidden" id="editId">
+   <div class="form-grid">
+    <div class="field"><label>اسم الدواء</label><input id="medName" required placeholder="اسم الدواء"></div>
+    <div class="field"><label>الجرعة كما وردت في الوصفة</label><input id="medDose" required placeholder="مثال: حسب الوصفة"></div>
+    <div class="field"><label>وقت التذكير</label><input type="time" id="medTime" required></div>
+    <div class="field"><label>التصنيف</label><select id="medType"><option>💊 دواء</option><option>💉 حقن</option><option>🧴 مستحضر</option><option>🩺 أخرى</option></select></div>
+   </div>
+   <div class="field"><label>ملاحظات اختيارية</label><input id="medNotes" placeholder="أضف ملاحظاتك"></div>
+   <div class="actions"><button class="btn" type="submit">حفظ الدواء</button><button class="btn soft" type="button" onclick="resetForm()">إلغاء</button></div>
+  </form>
+ </div>
+ <div class="section-head"><h2>الأدوية المسجلة</h2></div>
+ <div class="panel"><div id="medList"></div></div>
+</section>
+
+<!-- SCHEDULE -->
+<section class="page" id="schedule">
+ <div class="section-head"><div><h2>جدول الجرعات</h2><p>تابع مواعيدك وسجّل حالة كل جرعة</p></div></div>
+ <div class="panel"><div id="scheduleList"></div></div>
+ <div class="info" style="margin-top:14px">تأكيد الجرعة يسجل اختيار المستخدم فقط، ولا يثبت تناول الدواء فعلياً.</div>
+</section>
+
+<!-- HISTORY -->
+<section class="page" id="history">
+ <div class="section-head"><div><h2>سجل الجرعات</h2><p>مراجعة العمليات التي تم تسجيلها</p></div></div>
+ <div class="panel">
+  <div class="table-wrap">
+   <table><thead><tr><th>الدواء</th><th>الحالة</th><th>التاريخ والوقت</th></tr></thead><tbody id="historyRows"></tbody></table>
+  </div>
+  <div id="historyEmpty" class="empty">لا توجد عمليات مسجلة حتى الآن.</div>
+ </div>
+</section>
+
+<!-- GLUCOSE -->
+<section class="page" id="glucose">
+ <div class="section-head"><div><h2>متابعة قراءات السكر</h2><p>سجّل قراءاتك واحتفظ بسجل منظم</p></div></div>
+ <div class="panel">
+  <h3>إضافة قراءة جديدة</h3>
+  <form id="glucoseForm">
+   <div class="form-grid">
+    <div class="field"><label>قيمة القراءة</label><input type="number" min="0" step="any" id="gValue" required placeholder="مثال: 110"></div>
+    <div class="field"><label>وحدة القياس</label><select id="gUnit"><option>mg/dL</option><option>mmol/L</option></select></div>
+    <div class="field"><label>وقت القياس</label><select id="gContext"><option>قبل الأكل</option><option>بعد الأكل</option><option>صائم</option><option>أخرى</option></select></div>
+    <div class="field"><label>التاريخ والوقت</label><input type="datetime-local" id="gDate" required></div>
+   </div>
+   <button class="btn" type="submit">حفظ القراءة</button>
+  </form>
+ </div>
+ <div class="section-head"><h2>مخطط القراءات</h2></div>
+ <div class="panel"><div class="chart-wrap"><canvas id="chart"></canvas></div><p style="font-size:10px;color:var(--muted)">يعرض الرسم البيانات المسجلة فقط ولا يقدم تقييماً طبياً.</p></div>
+ <div class="section-head"><h2>سجل القراءات</h2></div>
+ <div class="panel"><div id="readingList"></div></div>
+</section>
+
+<!-- DEVICE -->
+<section class="page" id="device">
+ <div class="section-head"><div><h2>الجهاز الذكي</h2><p>تصور أولي لفكرة DOSE BUDDY</p></div><span class="status">Prototype</span></div>
+ <div class="device-grid">
+  <div class="panel">
+   <h3>تصميم الجهاز المقترح</h3>
+   <div class="device-area">
+    <div class="device">
+     <b style="margin-bottom:15px">DOSE BUDDY</b>
+     <div class="device-screen">READY<br>رفيقك الصحي<br><span id="clock">--:--</span></div>
+     <div class="led"></div>
+    </div>
+   </div>
+  </div>
+  <div class="panel">
+   <h3>حالة الجهاز</h3>
+   <div class="record-row"><span>الاتصال</span><span class="status pending">غير متصل</span></div>
+   <div class="record-row"><span>التذكيرات</span><span class="status">محاكاة</span></div>
+   <div class="record-row"><span>المكونات الإلكترونية</span><span class="status pending">تطوير مستقبلي</span></div>
+   <button class="btn" style="margin-top:20px" onclick="deviceTest()">اختبار الواجهة</button>
+   <div class="notice">لا يوجد اتصال فعلي بجهاز إلكتروني في هذه النسخة. هذه واجهة تصورية قابلة للتطوير باستخدام متحكم إلكتروني.</div>
+  </div>
+ </div>
+ <div class="section-head"><h2>تقنيات مقترحة للتطوير</h2></div>
+ <div class="well-grid">
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80" alt="Electronic circuit"><div class="well-body"><h3>ESP32</h3><p>متحكم إلكتروني للاتصال والتحكم في الجهاز.</p></div></div>
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500&q=80" alt="Technology"><div class="well-body"><h3>Internet of Things</h3><p>تقنيات إنترنت الأشياء للربط مستقبلاً.</p></div></div>
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=80" alt="Digital system"><div class="well-body"><h3>Smart Platform</h3><p>واجهة رقمية لتنظيم بيانات المستخدم.</p></div></div>
+ </div>
+</section>
+
+<!-- FUN -->
+<section class="page" id="fun">
+ <div class="hero" style="margin-bottom:20px">
+  <div class="hero-content">
+   <small>WELLNESS CORNER ✨</small>
+   <h2>استراحة صغيرة، وطاقة إيجابية أكبر</h2>
+   <p>تعرف على معلومات عامة، واختبر معلوماتك، وخذ لحظة للاهتمام بنفسك.</p>
+   <button class="btn white" onclick="newTip()">أعطني معلومة جديدة</button>
+  </div>
+  <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80" alt="Relaxation">
+ </div>
+ <div class="well-grid">
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80" alt="Healthy food"><div class="well-body"><h3>🥗 طبق متوازن</h3><p>التنوع في الطعام جزء من نمط حياة صحي.</p><button class="btn soft small" onclick="tip('التنوع الغذائي وتناول وجبات متوازنة يساعدان على دعم نمط حياة صحي.')">اكتشف</button></div></div>
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=500&q=80" alt="Walking"><div class="well-body"><h3>🚶 حركة ونشاط</h3><p>اختر نشاطاً يناسب قدراتك وروتينك.</p><button class="btn soft small" onclick="tip('اختر نشاطاً بدنياً يناسب قدراتك، واستشر مختصك عند الحاجة.')">اكتشف</button></div></div>
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80" alt="Mindfulness"><div class="well-body"><h3>🌿 لحظة هدوء</h3><p>خذ استراحة قصيرة وامنح نفسك وقتاً.</p><button class="btn soft small" onclick="tip('فترات الراحة والتنفس الهادئ قد تساعد على الاسترخاء.')">اكتشف</button></div></div>
+ </div>
+ <div class="section-head"><div><h2>🎯 تحدي المعلومات الصحية</h2><p>سؤال بسيط لاختبار معلوماتك العامة</p></div></div>
+ <div class="panel">
+  <h3 id="question">ما أفضل طريقة لتنظيم مواعيد الأدوية؟</h3>
+  <div id="answers"></div>
+  <p id="quizResult" style="font-size:12px;color:var(--green);font-weight:bold"></p>
+  <button class="btn" onclick="nextQuestion()">السؤال التالي</button>
+ </div>
+ <div class="info" style="margin-top:15px">المحتوى الترفيهي والتثقيفي معلومات عامة، ولا يُعد نصيحة طبية شخصية.</div>
+</section>
+
+<!-- SETTINGS -->
+<section class="page" id="settings">
+ <div class="section-head"><h2>الإعدادات والخصوصية</h2></div>
+ <div class="panel">
+  <h3>التفضيلات</h3>
+  <div class="field"><label>لغة الواجهة</label><select id="language" onchange="setLang(this.value)"><option value="ar">العربية</option><option value="en">English</option></select></div>
+  <div class="actions">
+   <button class="btn" onclick="exportData()">تصدير بياناتي</button>
+   <button class="btn soft" onclick="askNotify()">طلب إذن الإشعارات</button>
+   <button class="btn red" onclick="clearAll()">حذف جميع البيانات</button>
+  </div>
+ </div>
+ <div class="section-head"><h2>الخصوصية والشفافية</h2></div>
+ <div class="panel">
+  <div class="record-row"><span>مكان حفظ البيانات</span><b style="font-size:11px">المتصفح على هذا الجهاز</b></div>
+  <div class="record-row"><span>الاعتماد الرسمي</span><b style="font-size:11px">مشروع مستقل غير معتمد</b></div>
+  <div class="record-row"><span>الاستخدام الطبي</span><b style="font-size:11px">ليس بديلاً عن الطبيب</b></div>
+  <div class="notice">لا تدخل معلومات طبية حساسة في النسخة التجريبية. البيانات تحفظ محلياً وقد تُفقد عند مسح بيانات المتصفح.</div>
+ </div>
+</section>
+
+<footer class="footer">
+ <b>DOSE BUDDY</b> · رفيقك الصحي الذكي<br>
+ نموذج أولي تعليمي مستقل — غير تابع لوزارة الصحة وغير معتمد طبياً.
+</footer>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* DATA STORAGE */
+const load=(key)=>{try{return JSON.parse(localStorage.getItem(key)||"[]")}catch(e){return []}};
+const save=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+let meds=load("db_meds");
+let history=load("db_history");
+let readings=load("db_readings");
+let lang="ar";
+let quizIndex=0;
+
+function today(){
+ return new Date().toLocaleDateString(lang==="ar"?"ar-SA":"en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+}
+document.getElementById("date").textContent=today();
+
+function toast(message){
+ const el=document.getElementById("toast");
+ el.textContent=message;el.classList.add("show");
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>el.classList.remove("show"),2600);
+}
+
+function go(id,button){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+ else document.querySelectorAll(".nav-btn").forEach(b=>{
+  if(b.getAttribute("onclick")?.includes("'"+id+"'"))b.classList.add("active");
+ });
+ if(id==="glucose")drawChart();
+ render();
+}
+function navigate(id){go(id)}
+
+function resetForm(){
+ document.getElementById("medForm").reset();
+ document.getElementById("editId").value="";
+ document.getElementById("formTitle").textContent="إضافة دواء جديد";
+}
+
+document.getElementById("medForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ const id=document.getElementById("editId").value;
+ const item={
+  id:id||String(Date.now()),
+  name:document.getElementById("medName").value.trim(),
+  dose:document.getElementById("medDose").value.trim(),
+  time:document.getElementById("medTime").value,
+  type:document.getElementById("medType").value,
+  notes:document.getElementById("medNotes").value.trim()
+ };
+ if(id){
+  meds=meds.map(m=>m.id===id?item:m);toast("تم تحديث الدواء");
+ }else{
+  meds.push(item);toast("تم حفظ الدواء");
+ }
+ save("db_meds",meds);resetForm();render();
+});
+
+function editMed(id){
+ const m=meds.find(x=>x.id===id);if(!m)return;
+ document.getElementById("editId").value=m.id;
+ document.getElementById("medName").value=m.name;
+ document.getElementById("medDose").value=m.dose;
+ document.getElementById("medTime").value=m.time;
+ document.getElementById("medType").value=m.type;
+ document.getElementById("medNotes").value=m.notes||"";
+ document.getElementById("formTitle").textContent="تعديل الدواء";
+ go("meds");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function deleteMed(id){
+ if(!confirm("هل تريد حذف هذا الدواء؟"))return;
+ meds=meds.filter(m=>m.id!==id);
+ save("db_meds",meds);render();toast("تم حذف الدواء");
+}
+
+function doseStatus(id){
+ const d=new Date().toLocaleDateString("en-CA");
+ return history.find(h=>h.medId===id&&h.day===d);
+}
+function recordDose(id,status){
+ if(doseStatus(id)){toast("تم تسجيل حالة هذه الجرعة اليوم");return}
+ const m=meds.find(x=>x.id===id);if(!m)return;
+ history.unshift({
+  medId:id,name:m.name,status,
+  day:new Date().toLocaleDateString("en-CA"),
+  date:new Date().toLocaleString()
+ });
+ save("db_history",history);render();
+ toast(status==="taken"?"تم تسجيل تأكيد الجرعة":"تم تسجيل تأجيل الجرعة");
+}
+
+function medHTML(m,withActions=true){
+ const state=doseStatus(m.id);
+ let label=state?(state.status==="taken"?"تم التأكيد":"تم التأجيل"):"بانتظار التسجيل";
+ let cls=state?(state.status==="taken"?"":"snoozed"):"pending";
+ return `<div class="med-row">
+ <div class="med-info"><div class="med-icon">${m.type.split(" ")[0]}</div>
+ <div><strong>${escapeHTML(m.name)}</strong><small>${escapeHTML(m.dose)} · ${m.time}</small></div></div>
+ <div class="actions">
+ <span class="status ${cls}">${label}</span>
+ ${withActions?`<button class="btn small" onclick="recordDose('${m.id}','taken')">✓</button>
+ <button class="btn soft small" onclick="recordDose('${m.id}','snoozed')">تأجيل</button>`:""}
+ </div></div>`;
+}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function render(){
+ document.getElementById("sMeds").textContent=meds.length;
+ document.getElementById("sReadings").textContent=readings.length;
+ const day=new Date().toLocaleDateString("en-CA");
+ const todays=history.filter(h=>h.day===day);
+ document.getElementById("sTaken").textContent=todays.filter(h=>h.status==="taken").length;
+ document.getElementById("sPending").textContent=Math.max(0,meds.length-todays.length);
+
+ document.getElementById("homeMeds").innerHTML=meds.length?meds.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(m=>medHTML(m)).join(""):'<div class="empty">لا توجد أدوية مسجلة بعد.</div>';
+ document.getElementById("medList").innerHTML=meds.length?meds.map(m=>`<div class="med-row">
+ <div class="med-info"><div class="med-icon">${m.type.split(" ")[0]}</div><div><strong>${escapeHTML(m.name)}</strong><small>${escapeHTML(m.dose)} · ${m.time}</small></div></div>
+ <div class="actions"><button class="btn soft small" onclick="editMed('${m.id}')">تعديل</button><button class="btn red small" onclick="deleteMed('${m.id}')">حذف</button></div>
+ </div>`).join(""):'<div class="empty">لا توجد أدوية مسجلة بعد. ابدأ بإضافة دوائك.</div>';
+
+ document.getElementById("scheduleList").innerHTML=meds.length?meds.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(m=>medHTML(m)).join(""):'<div class="empty">أضف أدويتك لعرض جدول الجرعات.</div>';
+
+ document.getElementById("historyRows").innerHTML=history.map(h=>`<tr><td>${escapeHTML(h.name)}</td><td>${h.status==="taken"?"تم التأكيد":"تم التأجيل"}</td><td>${escapeHTML(h.date)}</td></tr>`).join("");
+ document.getElementById("historyEmpty").style.display=history.length?"none":"block";
+
+ document.getElementById("readingList").innerHTML=readings.length?readings.slice().reverse().map(r=>`<div class="record-row"><div><b>${escapeHTML(r.value)} ${escapeHTML(r.unit)}</b><small style="display:block;color:var(--muted);margin-top:5px">${escapeHTML(r.context)} · ${escapeHTML(r.date)}</small></div><span class="status">مسجلة</span></div>`).join(""):'<div class="empty">لا توجد قراءات مسجلة.</div>';
+ if(document.getElementById("glucose").classList.contains("active"))drawChart();
+}
+document.getElementById("glucoseForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ readings.push({
+  value:Number(document.getElementById("gValue").value),
+  unit:document.getElementById("gUnit").value,
+  context:document.getElementById("gContext").value,
+  date:document.getElementById("gDate").value
+ });
+ save("db_readings",readings);this.reset();
+ document.getElementById("gDate").value=new Date().toISOString().slice(0,16);
+ render();toast("تم حفظ القراءة");
+});
+
+function drawChart(){
+ const canvas=document.getElementById("chart");
+ const ctx=canvas.getContext("2d");
+ const w=canvas.width=canvas.clientWidth*2;
+ const h=canvas.height=canvas.clientHeight*2;
+ ctx.clearRect(0,0,w,h);
+ const data=readings.slice(-8);
+ if(!data.length){
+  ctx.fillStyle="#82948d";ctx.font="24px Arial";ctx.textAlign="center";
+  ctx.fillText("ستظهر القراءات هنا بعد تسجيلها",w/2,h/2);return;
+ }
+ const vals=data.map(x=>x.value);
+ const min=Math.min(...vals)*.85,max=Math.max(...vals)*1.15;
+ const range=max-min||1;
+ const left=45,right=w-25,top=25,bottom=h-40;
+ ctx.strokeStyle="#e5eee9";ctx.lineWidth=2;
+ for(let i=0;i<4;i++){
+  let y=top+(bottom-top)*i/3;
+  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();
+ }
+ const pts=data.map((d,i)=>({
+  x:left+(right-left)*(data.length===1?.5:i/(data.length-1)),
+  y:bottom-(d.value-min)/range*(bottom-top)
+ }));
+ ctx.beginPath();ctx.strokeStyle="#087d68";ctx.lineWidth=5;
+ pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+ ctx.stroke();
+ pts.forEach((p,i)=>{
+  ctx.beginPath();ctx.fillStyle="#087d68";ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#203c35";ctx.font="19px Arial";ctx.textAlign="center";
+  ctx.fillText(data[i].value,p.x,p.y-14);
+ });
+}
+
+const questions=[
+ {q:"ما أفضل طريقة لتنظيم مواعيد الأدوية؟",a:["الاعتماد على الذاكرة فقط","استخدام جدول أو تذكير منظم","تغيير المواعيد عشوائياً"],correct:1,why:"الجدول والتذكير يساعدان على تنظيم الروتين."},
+ {q:"ماذا تفعل إذا أردت تغيير جرعة دوائك؟",a:["أغيرها بنفسي","أتوقف عن الدواء","أراجع الطبيب أو الصيدلي"],correct:2,why:"تغيير الجرعات يجب أن يكون بتوجيه المختص."},
+ {q:"ما فائدة تسجيل القراءات الصحية؟",a:["تنظيم المعلومات لمراجعتها","تشخيص المرض تلقائياً","استبدال الطبيب"],correct:0,why:"السجل يساعد على متابعة المعلومات ومناقشتها مع المختص."},
+ {q:"هل تأكيد الجرعة في الموقع يثبت تناول الدواء؟",a:["نعم دائماً","لا، إنه تسجيل يدوي فقط","يثبت ذلك بالكاميرا"],correct:1,why:"التأكيد يسجل اختيار المستخدم ولا يثبت تناول الدواء."}
+];
+function showQuestion(){
+ const q=questions[quizIndex%questions.length];
+ document.getElementById("question").textContent=q.q;
+ document.getElementById("quizResult").textContent="";
+ document.getElementById("answers").innerHTML=q.a.map((a,i)=>`<button class="quiz-option" onclick="answer(${i})">${a}</button>`).join("");
+}
+function answer(i){
+ const q=questions[quizIndex%questions.length];
+ document.querySelectorAll(".quiz-option").forEach((b,j)=>b.disabled=true);
+ document.getElementById("quizResult").textContent=(i===q.correct?"✓ إجابة صحيحة! ":"ليست الإجابة الصحيحة. ")+q.why;
+}
+function nextQuestion(){quizIndex++;showQuestion()}
+function tip(text){toast(text)}
+const tips=[
+ "احتفظ بقائمة محدثة بأدويتك ومواعيدها.",
+ "تذكّر اتباع تعليمات الطبيب أو الصيدلي بشأن أدويتك.",
+ "خصص وقتاً لمراجعة سجل قراءاتك مع مختص الرعاية الصحية.",
+ "التنظيم اليومي يساعدك على متابعة روتينك."
+];
+function newTip(){tip(tips[Math.floor(Math.random()*tips.length)])}
+function deviceTest(){toast("تم اختبار واجهة الجهاز بنجاح — لا يوجد جهاز حقيقي متصل.")}
+
+function exportData(){
+ const data={medications:meds,doseHistory:history,glucoseReadings:readings};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="dose-buddy-data.json";a.click();
+ URL.revokeObjectURL(url);toast("تم تجهيز ملف بياناتك");
+}
+function clearAll(){
+ if(!confirm("هل أنت متأكد من حذف جميع البيانات؟"))return;
+ meds=[];history=[];readings=[];
+ save("db_meds",meds);save("db_history",history);save("db_readings",readings);
+ render();toast("تم حذف البيانات");
+}
+function askNotify(){
+ if(!("Notification" in window)){toast("المتصفح لا يدعم الإشعارات");return}
+ Notification.requestPermission().then(p=>toast(p==="granted"?"تم السماح بالإشعارات":"لم يتم السماح بالإشعارات"));
+}
+function toggleLang(){
+ setLang(lang==="ar"?"en":"ar");
+}
+function setLang(value){
+ lang=value;
+ document.documentElement.lang=value;
+ document.documentElement.dir=value==="ar"?"rtl":"ltr";
+ document.getElementById("language").value=value;
+ document.getElementById("welcome").textContent=value==="ar"?"مرحباً بك في DOSE BUDDY":"Welcome to DOSE BUDDY";
+ document.querySelectorAll(".nav-btn .nav-text").forEach((el,i)=>{
+  const ar=["الرئيسية","إدارة الأدوية","جدول الجرعات","سجل الجرعات","متابعة السكر","الجهاز الذكي","ركن العافية والترفيه","الإعدادات"];
+  const en=["Dashboard","Medications","Dose Schedule","Dose History","Glucose Tracking","Smart Device","Wellness & Fun","Settings"];
+  el.textContent=(value==="ar"?ar:en)[i];
+ });
+ document.getElementById("date").textContent=today();
+ toast(value==="ar"?"تم اختيار العربية":"English selected");
+}
+
+/* START */
+document.getElementById("gDate").value=new Date().toISOString().slice(0,16);
+showQuestion();
+render();
+setInterval(()=>{
+ document.getElementById("clock").textContent=new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+},1000);
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#105548">
+<title>DOSE BUDDY | Smart Health Companion</title>
+
+<style>
+:root {
+ --green:#087d68; --dark:#104b40; --mint:#e8f5f0;
+ --bg:#f4f8f6; --white:#fff; --text:#203c35;
+ --muted:#82948d; --border:#e5eee9; --gold:#e9a64b;
+ --red:#d96b6b; --shadow:0 8px 28px #1741350c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{
+ width:245px;flex-shrink:0;background:var(--dark);color:white;
+ padding:24px 15px;position:sticky;top:0;height:100vh;
+ display:flex;flex-direction:column;overflow:auto
+}
+.brand{font-size:22px;font-weight:800;padding:5px 10px}
+.brand span{color:#85e0bd}
+.brand-sub{font-size:11px;color:#b9d9cd;padding:5px 12px 25px}
+.nav-label{font-size:10px;color:#9fc7b8;padding:15px 12px 7px}
+.nav-btn{
+ display:flex;align-items:center;gap:12px;width:100%;
+ background:transparent;color:#e0eee8;border:0;border-radius:11px;
+ padding:13px;text-align:right;font-size:13px;margin:3px 0
+}
+.nav-btn:hover,.nav-btn.active{background:#ffffff1c;color:white}
+.nav-icon{font-size:19px;width:25px;text-align:center}
+.side-bottom{margin-top:auto;color:#a8c9bd;font-size:10px;line-height:2;padding:15px}
+.main{flex:1;min-width:0;max-width:1550px;margin:auto;padding:25px 30px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:25px}
+.topbar h1{font-size:23px;color:var(--dark);margin:0 0 6px}
+.topbar p{font-size:11px;color:var(--muted);margin:0}
+.top-actions{display:flex;gap:8px;align-items:center}
+.btn{
+ border:0;border-radius:10px;background:var(--green);color:white;
+ padding:11px 16px;font-size:12px;font-weight:bold;transition:.2s
+}
+.btn:hover{filter:brightness(.93);transform:translateY(-1px)}
+.btn.soft{background:var(--mint);color:var(--dark)}
+.btn.white{background:white;color:var(--dark)}
+.btn.red{background:#fff0f0;color:#b84f4f}
+.btn.small{padding:8px 11px;font-size:11px}
+.lang{background:white;border:1px solid var(--border);padding:10px;border-radius:10px}
+.page{display:none;animation:fade .2s}
+.page.active{display:block}
+@keyframes fade{from{opacity:.5}to{opacity:1}}
+.hero{
+ background:linear-gradient(110deg,#104b40,#0b8b70);
+ border-radius:22px;padding:30px;color:white;display:flex;
+ justify-content:space-between;align-items:center;gap:20px;
+ min-height:190px;box-shadow:var(--shadow)
+}
+.hero-content{max-width:600px}
+.hero small{color:#bfe9d9;font-size:11px}
+.hero h2{font-size:25px;line-height:1.5;margin:12px 0}
+.hero p{font-size:13px;line-height:2;color:#d6eee5}
+.hero img{width:180px;height:145px;object-fit:cover;border-radius:17px;border:3px solid #ffffff33}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:20px 0}
+.stat,.panel,.well-card{
+ background:white;border:1px solid var(--border);
+ border-radius:16px;padding:18px;box-shadow:var(--shadow)
+}
+.stat-label{font-size:11px;color:var(--muted)}
+.stat-icon{float:left;font-size:20px;background:var(--mint);padding:9px;border-radius:11px}
+.stat-number{font-size:28px;font-weight:bold;color:var(--dark);margin:15px 0 4px}
+.stat-note{font-size:10px;color:var(--muted)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:23px 0 13px}
+.section-head h2{font-size:17px;color:var(--dark);margin:0}
+.section-head p{font-size:11px;color:var(--muted);margin:5px 0 0}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:15px}
+.panel h3{font-size:14px;color:var(--dark);margin:0 0 15px}
+.med-row,.record-row{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;padding:13px 0;border-bottom:1px solid #edf2ef
+}
+.med-row:last-child,.record-row:last-child{border:0}
+.med-info{display:flex;align-items:center;gap:10px;min-width:0}
+.med-icon{width:42px;height:42px;display:grid;place-items:center;background:var(--mint);border-radius:12px;font-size:20px;flex-shrink:0}
+.med-info strong{font-size:12px;display:block;margin-bottom:5px}
+.med-info small{font-size:10px;color:var(--muted)}
+.status{font-size:10px;padding:6px 9px;border-radius:20px;background:#e7f5ee;color:#18835f;white-space:nowrap}
+.status.pending{background:#fff4df;color:#a97822}
+.status.late{background:#fff0f0;color:#bd5555}
+.status.snoozed{background:#edf1ff;color:#6575b1}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.field label{font-size:11px;color:#587068}
+.field input,.field select{
+ width:100%;padding:12px;border:1px solid var(--border);
+ border-radius:10px;background:white;outline:none;font-size:12px;color:var(--text)
+}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.empty{text-align:center;padding:22px;color:var(--muted);font-size:12px;line-height:2}
+.notice{background:#fff8e9;border:1px solid #f2e8cf;border-radius:12px;padding:13px;color:#80652b;font-size:11px;line-height:2;margin-top:15px}
+.info{background:#edf7f3;border-radius:12px;padding:13px;color:#416b5c;font-size:11px;line-height:2}
+table{width:100%;border-collapse:collapse;min-width:450px;font-size:11px}
+th,td{text-align:right;padding:12px;border-bottom:1px solid var(--border)}
+th{color:var(--muted)}
+.table-wrap{overflow-x:auto}
+.chart-wrap{height:240px}
+canvas{width:100%;height:100%}
+.well-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.well-card{padding:0;overflow:hidden}
+.well-card img{width:100%;height:135px;object-fit:cover}
+.well-body{padding:14px}
+.well-body h3{font-size:13px;margin:0 0 7px}
+.well-body p{font-size:11px;line-height:1.8;color:var(--muted);min-height:38px}
+.device-area{background:linear-gradient(140deg,#eaf5f0,#f7fbf9);padding:25px;border-radius:15px;display:grid;place-items:center}
+.device{
+ width:175px;height:215px;border-radius:29px;
+ background:linear-gradient(145deg,#1a5145,#092f29);
+ box-shadow:inset 0 0 0 7px #286657,0 18px 30px #123d3525;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;color:white
+}
+.device-screen{background:#bcebd4;color:#14513e;padding:17px;border-radius:9px;text-align:center;font-size:11px;line-height:2}
+.led{width:10px;height:10px;border-radius:50%;background:#5be0a7;margin-top:15px;box-shadow:0 0 12px #5be0a7}
+.device-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.quiz-option{
+ display:block;width:100%;text-align:right;padding:12px;margin:6px 0;
+ border:1px solid var(--border);border-radius:10px;background:#f3f8f6;font-size:12px;color:var(--text)
+}
+.quiz-option:hover{background:var(--mint);border-color:var(--green)}
+.footer{border-top:1px solid var(--border);margin-top:30px;padding:20px;text-align:center;font-size:10px;color:var(--muted);line-height:2}
+.toast{
+ display:none;position:fixed;bottom:20px;left:20px;z-index:20;
+ background:#103d35;color:white;padding:14px 18px;border-radius:12px;
+ font-size:12px;box-shadow:var(--shadow);max-width:85%
+}
+.toast.show{display:block}
+@media(max-width:950px){
+ .sidebar{width:75px;padding:18px 7px}
+ .brand,.brand-sub,.nav-label,.nav-text,.side-bottom{display:none}
+ .nav-btn{justify-content:center;padding:13px 5px}
+ .main{padding:20px 15px}
+}
+@media(max-width:700px){
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .grid2,.device-grid{grid-template-columns:1fr}
+ .well-grid{grid-template-columns:1fr 1fr}
+ .hero img{width:105px;height:115px}
+ .hero{padding:20px}
+ .hero h2{font-size:19px}
+}
+@media(max-width:470px){
+ .main{padding:14px 10px}
+ .topbar h1{font-size:16px}
+ .topbar p{font-size:9px}
+ .top-actions{flex-direction:column}
+ .hero img{width:75px;height:90px}
+ .hero p{font-size:11px}
+ .form-grid{grid-template-columns:1fr}
+ .well-grid{grid-template-columns:1fr}
+ .stat{padding:13px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar">
+ <div class="brand">✚ DOSE <span>BUDDY</span></div>
+ <div class="brand-sub">رفيقك الصحي الذكي</div>
+
+ <div class="nav-label">القائمة الرئيسية</div>
+ <button class="nav-btn active" onclick="go('home',this)"><span class="nav-icon">⌂</span><span class="nav-text">الرئيسية</span></button>
+ <button class="nav-btn" onclick="go('meds',this)"><span class="nav-icon">💊</span><span class="nav-text">إدارة الأدوية</span></button>
+ <button class="nav-btn" onclick="go('schedule',this)"><span class="nav-icon">◷</span><span class="nav-text">جدول الجرعات</span></button>
+ <button class="nav-btn" onclick="go('history',this)"><span class="nav-icon">▤</span><span class="nav-text">سجل الجرعات</span></button>
+ <button class="nav-btn" onclick="go('glucose',this)"><span class="nav-icon">♡</span><span class="nav-text">متابعة السكر</span></button>
+
+ <div class="nav-label">تجربة DOSE BUDDY</div>
+ <button class="nav-btn" onclick="go('device',this)"><span class="nav-icon">🤖</span><span class="nav-text">الجهاز الذكي</span></button>
+ <button class="nav-btn" onclick="go('fun',this)"><span class="nav-icon">✦</span><span class="nav-text">ركن العافية والترفيه</span></button>
+ <button class="nav-btn" onclick="go('settings',this)"><span class="nav-icon">⚙</span><span class="nav-text">الإعدادات</span></button>
+
+ <div class="side-bottom">DOSE BUDDY<br>SMART HEALTH PROTOTYPE<br>2026</div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div>
+  <h1 id="welcome">مرحباً بك في DOSE BUDDY</h1>
+  <p id="date"></p>
+ </div>
+ <div class="top-actions">
+  <button class="lang" onclick="toggleLang()">عربي / EN</button>
+  <button class="btn small" onclick="go('meds')">＋ إضافة دواء</button>
+ </div>
+</header>
+
+<!-- HOME -->
+<section class="page active" id="home">
+ <div class="hero">
+  <div class="hero-content">
+   <small>رعاية ذكية · تنظيم أسهل · حياة أفضل</small>
+   <h2>رحلتك الصحية تستحق رفيقاً يهتم بالتفاصيل</h2>
+   <p>نساعدك على تنظيم مواعيد أدويتك وتسجيل قراءاتك الصحية في تجربة رقمية بسيطة وواضحة.</p>
+   <button class="btn white" onclick="go('meds')">ابدأ الآن ←</button>
+  </div>
+  <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80" alt="Healthcare">
+ </div>
+
+ <div class="stats">
+  <div class="stat"><span class="stat-icon">💊</span><div class="stat-label">الأدوية المسجلة</div><div class="stat-number" id="sMeds">0</div><div class="stat-note">إجمالي الأدوية</div></div>
+  <div class="stat"><span class="stat-icon">✓</span><div class="stat-label">جرعات مؤكدة اليوم</div><div class="stat-number" id="sTaken">0</div><div class="stat-note">تأكيدات اليوم</div></div>
+  <div class="stat"><span class="stat-icon">◷</span><div class="stat-label">جرعات غير مؤكدة</div><div class="stat-number" id="sPending">0</div><div class="stat-note">حسب الجدول اليومي</div></div>
+  <div class="stat"><span class="stat-icon">♡</span><div class="stat-label">قراءات مسجلة</div><div class="stat-number" id="sReadings">0</div><div class="stat-note">إجمالي القراءات</div></div>
+ </div>
+
+ <div class="grid2">
+  <div class="panel"><h3>مواعيد أدويتك اليوم</h3><div id="homeMeds"></div></div>
+  <div class="panel">
+   <h3>رسالة اليوم 🌿</h3>
+   <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80" alt="Wellness" style="width:100%;height:125px;object-fit:cover;border-radius:12px">
+   <p style="font-size:12px;line-height:2;color:var(--muted)">التنظيم اليومي يساعدك على متابعة أدويتك وبياناتك بوضوح.</p>
+   <button class="btn soft small" onclick="go('fun')">اكتشف ركن العافية</button>
+  </div>
+ </div>
+ <div class="notice">تنبيه: هذا نموذج أولي تجريبي للتنظيم والتذكير فقط، وليس جهازاً طبياً أو بديلاً عن الطبيب. أدخل الأدوية وفق الوصفة الطبية.</div>
+</section>
+
+<!-- MEDS -->
+<section class="page" id="meds">
+ <div class="section-head"><div><h2>إدارة الأدوية</h2><p>أضف أدويتك ونظّم مواعيدها</p></div></div>
+ <div class="panel">
+  <h3 id="formTitle">إضافة دواء جديد</h3>
+  <form id="medForm">
+   <input type="hidden" id="editId">
+   <div class="form-grid">
+    <div class="field"><label>اسم الدواء</label><input id="medName" required placeholder="اسم الدواء"></div>
+    <div class="field"><label>الجرعة كما وردت في الوصفة</label><input id="medDose" required placeholder="مثال: حسب الوصفة"></div>
+    <div class="field"><label>وقت التذكير</label><input type="time" id="medTime" required></div>
+    <div class="field"><label>التصنيف</label><select id="medType"><option>💊 دواء</option><option>💉 حقن</option><option>🧴 مستحضر</option><option>🩺 أخرى</option></select></div>
+   </div>
+   <div class="field"><label>ملاحظات اختيارية</label><input id="medNotes" placeholder="أضف ملاحظاتك"></div>
+   <div class="actions"><button class="btn" type="submit">حفظ الدواء</button><button class="btn soft" type="button" onclick="resetForm()">إلغاء</button></div>
+  </form>
+ </div>
+ <div class="section-head"><h2>الأدوية المسجلة</h2></div>
+ <div class="panel"><div id="medList"></div></div>
+</section>
+
+<!-- SCHEDULE -->
+<section class="page" id="schedule">
+ <div class="section-head"><div><h2>جدول الجرعات</h2><p>تابع مواعيدك وسجّل حالة كل جرعة</p></div></div>
+ <div class="panel"><div id="scheduleList"></div></div>
+ <div class="info" style="margin-top:14px">تأكيد الجرعة يسجل اختيار المستخدم فقط، ولا يثبت تناول الدواء فعلياً.</div>
+</section>
+
+<!-- HISTORY -->
+<section class="page" id="history">
+ <div class="section-head"><div><h2>سجل الجرعات</h2><p>مراجعة العمليات التي تم تسجيلها</p></div></div>
+ <div class="panel">
+  <div class="table-wrap">
+   <table><thead><tr><th>الدواء</th><th>الحالة</th><th>التاريخ والوقت</th></tr></thead><tbody id="historyRows"></tbody></table>
+  </div>
+  <div id="historyEmpty" class="empty">لا توجد عمليات مسجلة حتى الآن.</div>
+ </div>
+</section>
+
+<!-- GLUCOSE -->
+<section class="page" id="glucose">
+ <div class="section-head"><div><h2>متابعة قراءات السكر</h2><p>سجّل قراءاتك واحتفظ بسجل منظم</p></div></div>
+ <div class="panel">
+  <h3>إضافة قراءة جديدة</h3>
+  <form id="glucoseForm">
+   <div class="form-grid">
+    <div class="field"><label>قيمة القراءة</label><input type="number" min="0" step="any" id="gValue" required placeholder="مثال: 110"></div>
+    <div class="field"><label>وحدة القياس</label><select id="gUnit"><option>mg/dL</option><option>mmol/L</option></select></div>
+    <div class="field"><label>وقت القياس</label><select id="gContext"><option>قبل الأكل</option><option>بعد الأكل</option><option>صائم</option><option>أخرى</option></select></div>
+    <div class="field"><label>التاريخ والوقت</label><input type="datetime-local" id="gDate" required></div>
+   </div>
+   <button class="btn" type="submit">حفظ القراءة</button>
+  </form>
+ </div>
+ <div class="section-head"><h2>مخطط القراءات</h2></div>
+ <div class="panel"><div class="chart-wrap"><canvas id="chart"></canvas></div><p style="font-size:10px;color:var(--muted)">يعرض الرسم البيانات المسجلة فقط ولا يقدم تقييماً طبياً.</p></div>
+ <div class="section-head"><h2>سجل القراءات</h2></div>
+ <div class="panel"><div id="readingList"></div></div>
+</section>
+
+<!-- DEVICE -->
+<section class="page" id="device">
+ <div class="section-head"><div><h2>الجهاز الذكي</h2><p>تصور أولي لفكرة DOSE BUDDY</p></div><span class="status">Prototype</span></div>
+ <div class="device-grid">
+  <div class="panel">
+   <h3>تصميم الجهاز المقترح</h3>
+   <div class="device-area">
+    <div class="device">
+     <b style="margin-bottom:15px">DOSE BUDDY</b>
+     <div class="device-screen">READY<br>رفيقك الصحي<br><span id="clock">--:--</span></div>
+     <div class="led"></div>
+    </div>
+   </div>
+  </div>
+  <div class="panel">
+   <h3>حالة الجهاز</h3>
+   <div class="record-row"><span>الاتصال</span><span class="status pending">غير متصل</span></div>
+   <div class="record-row"><span>التذكيرات</span><span class="status">محاكاة</span></div>
+   <div class="record-row"><span>المكونات الإلكترونية</span><span class="status pending">تطوير مستقبلي</span></div>
+   <button class="btn" style="margin-top:20px" onclick="deviceTest()">اختبار الواجهة</button>
+   <div class="notice">لا يوجد اتصال فعلي بجهاز إلكتروني في هذه النسخة. هذه واجهة تصورية قابلة للتطوير باستخدام متحكم إلكتروني.</div>
+  </div>
+ </div>
+ <div class="section-head"><h2>تقنيات مقترحة للتطوير</h2></div>
+ <div class="well-grid">
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80" alt="Electronic circuit"><div class="well-body"><h3>ESP32</h3><p>متحكم إلكتروني للاتصال والتحكم في الجهاز.</p></div></div>
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500&q=80" alt="Technology"><div class="well-body"><h3>Internet of Things</h3><p>تقنيات إنترنت الأشياء للربط مستقبلاً.</p></div></div>
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=80" alt="Digital system"><div class="well-body"><h3>Smart Platform</h3><p>واجهة رقمية لتنظيم بيانات المستخدم.</p></div></div>
+ </div>
+</section>
+
+<!-- FUN -->
+<section class="page" id="fun">
+ <div class="hero" style="margin-bottom:20px">
+  <div class="hero-content">
+   <small>WELLNESS CORNER ✨</small>
+   <h2>استراحة صغيرة، وطاقة إيجابية أكبر</h2>
+   <p>تعرف على معلومات عامة، واختبر معلوماتك، وخذ لحظة للاهتمام بنفسك.</p>
+   <button class="btn white" onclick="newTip()">أعطني معلومة جديدة</button>
+  </div>
+  <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80" alt="Relaxation">
+ </div>
+ <div class="well-grid">
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&q=80" alt="Healthy food"><div class="well-body"><h3>🥗 طبق متوازن</h3><p>التنوع في الطعام جزء من نمط حياة صحي.</p><button class="btn soft small" onclick="tip('التنوع الغذائي وتناول وجبات متوازنة يساعدان على دعم نمط حياة صحي.')">اكتشف</button></div></div>
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=500&q=80" alt="Walking"><div class="well-body"><h3>🚶 حركة ونشاط</h3><p>اختر نشاطاً يناسب قدراتك وروتينك.</p><button class="btn soft small" onclick="tip('اختر نشاطاً بدنياً يناسب قدراتك، واستشر مختصك عند الحاجة.')">اكتشف</button></div></div>
+  <div class="well-card"><img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&q=80" alt="Mindfulness"><div class="well-body"><h3>🌿 لحظة هدوء</h3><p>خذ استراحة قصيرة وامنح نفسك وقتاً.</p><button class="btn soft small" onclick="tip('فترات الراحة والتنفس الهادئ قد تساعد على الاسترخاء.')">اكتشف</button></div></div>
+ </div>
+ <div class="section-head"><div><h2>🎯 تحدي المعلومات الصحية</h2><p>سؤال بسيط لاختبار معلوماتك العامة</p></div></div>
+ <div class="panel">
+  <h3 id="question">ما أفضل طريقة لتنظيم مواعيد الأدوية؟</h3>
+  <div id="answers"></div>
+  <p id="quizResult" style="font-size:12px;color:var(--green);font-weight:bold"></p>
+  <button class="btn" onclick="nextQuestion()">السؤال التالي</button>
+ </div>
+ <div class="info" style="margin-top:15px">المحتوى الترفيهي والتثقيفي معلومات عامة، ولا يُعد نصيحة طبية شخصية.</div>
+</section>
+
+<!-- SETTINGS -->
+<section class="page" id="settings">
+ <div class="section-head"><h2>الإعدادات والخصوصية</h2></div>
+ <div class="panel">
+  <h3>التفضيلات</h3>
+  <div class="field"><label>لغة الواجهة</label><select id="language" onchange="setLang(this.value)"><option value="ar">العربية</option><option value="en">English</option></select></div>
+  <div class="actions">
+   <button class="btn" onclick="exportData()">تصدير بياناتي</button>
+   <button class="btn soft" onclick="askNotify()">طلب إذن الإشعارات</button>
+   <button class="btn red" onclick="clearAll()">حذف جميع البيانات</button>
+  </div>
+ </div>
+ <div class="section-head"><h2>الخصوصية والشفافية</h2></div>
+ <div class="panel">
+  <div class="record-row"><span>مكان حفظ البيانات</span><b style="font-size:11px">المتصفح على هذا الجهاز</b></div>
+  <div class="record-row"><span>الاعتماد الرسمي</span><b style="font-size:11px">مشروع مستقل غير معتمد</b></div>
+  <div class="record-row"><span>الاستخدام الطبي</span><b style="font-size:11px">ليس بديلاً عن الطبيب</b></div>
+  <div class="notice">لا تدخل معلومات طبية حساسة في النسخة التجريبية. البيانات تحفظ محلياً وقد تُفقد عند مسح بيانات المتصفح.</div>
+ </div>
+</section>
+
+<footer class="footer">
+ <b>DOSE BUDDY</b> · رفيقك الصحي الذكي<br>
+ نموذج أولي تعليمي مستقل — غير تابع لوزارة الصحة وغير معتمد طبياً.
+</footer>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* DATA STORAGE */
+const load=(key)=>{try{return JSON.parse(localStorage.getItem(key)||"[]")}catch(e){return []}};
+const save=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+let meds=load("db_meds");
+let history=load("db_history");
+let readings=load("db_readings");
+let lang="ar";
+let quizIndex=0;
+
+function today(){
+ return new Date().toLocaleDateString(lang==="ar"?"ar-SA":"en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+}
+document.getElementById("date").textContent=today();
+
+function toast(message){
+ const el=document.getElementById("toast");
+ el.textContent=message;el.classList.add("show");
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>el.classList.remove("show"),2600);
+}
+
+function go(id,button){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+ else document.querySelectorAll(".nav-btn").forEach(b=>{
+  if(b.getAttribute("onclick")?.includes("'"+id+"'"))b.classList.add("active");
+ });
+ if(id==="glucose")drawChart();
+ render();
+}
+function navigate(id){go(id)}
+
+function resetForm(){
+ document.getElementById("medForm").reset();
+ document.getElementById("editId").value="";
+ document.getElementById("formTitle").textContent="إضافة دواء جديد";
+}
+
+document.getElementById("medForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ const id=document.getElementById("editId").value;
+ const item={
+  id:id||String(Date.now()),
+  name:document.getElementById("medName").value.trim(),
+  dose:document.getElementById("medDose").value.trim(),
+  time:document.getElementById("medTime").value,
+  type:document.getElementById("medType").value,
+  notes:document.getElementById("medNotes").value.trim()
+ };
+ if(id){
+  meds=meds.map(m=>m.id===id?item:m);toast("تم تحديث الدواء");
+ }else{
+  meds.push(item);toast("تم حفظ الدواء");
+ }
+ save("db_meds",meds);resetForm();render();
+});
+
+function editMed(id){
+ const m=meds.find(x=>x.id===id);if(!m)return;
+ document.getElementById("editId").value=m.id;
+ document.getElementById("medName").value=m.name;
+ document.getElementById("medDose").value=m.dose;
+ document.getElementById("medTime").value=m.time;
+ document.getElementById("medType").value=m.type;
+ document.getElementById("medNotes").value=m.notes||"";
+ document.getElementById("formTitle").textContent="تعديل الدواء";
+ go("meds");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function deleteMed(id){
+ if(!confirm("هل تريد حذف هذا الدواء؟"))return;
+ meds=meds.filter(m=>m.id!==id);
+ save("db_meds",meds);render();toast("تم حذف الدواء");
+}
+
+function doseStatus(id){
+ const d=new Date().toLocaleDateString("en-CA");
+ return history.find(h=>h.medId===id&&h.day===d);
+}
+function recordDose(id,status){
+ if(doseStatus(id)){toast("تم تسجيل حالة هذه الجرعة اليوم");return}
+ const m=meds.find(x=>x.id===id);if(!m)return;
+ history.unshift({
+  medId:id,name:m.name,status,
+  day:new Date().toLocaleDateString("en-CA"),
+  date:new Date().toLocaleString()
+ });
+ save("db_history",history);render();
+ toast(status==="taken"?"تم تسجيل تأكيد الجرعة":"تم تسجيل تأجيل الجرعة");
+}
+
+function medHTML(m,withActions=true){
+ const state=doseStatus(m.id);
+ let label=state?(state.status==="taken"?"تم التأكيد":"تم التأجيل"):"بانتظار التسجيل";
+ let cls=state?(state.status==="taken"?"":"snoozed"):"pending";
+ return `<div class="med-row">
+ <div class="med-info"><div class="med-icon">${m.type.split(" ")[0]}</div>
+ <div><strong>${escapeHTML(m.name)}</strong><small>${escapeHTML(m.dose)} · ${m.time}</small></div></div>
+ <div class="actions">
+ <span class="status ${cls}">${label}</span>
+ ${withActions?`<button class="btn small" onclick="recordDose('${m.id}','taken')">✓</button>
+ <button class="btn soft small" onclick="recordDose('${m.id}','snoozed')">تأجيل</button>`:""}
+ </div></div>`;
+}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function render(){
+ document.getElementById("sMeds").textContent=meds.length;
+ document.getElementById("sReadings").textContent=readings.length;
+ const day=new Date().toLocaleDateString("en-CA");
+ const todays=history.filter(h=>h.day===day);
+ document.getElementById("sTaken").textContent=todays.filter(h=>h.status==="taken").length;
+ document.getElementById("sPending").textContent=Math.max(0,meds.length-todays.length);
+
+ document.getElementById("homeMeds").innerHTML=meds.length?meds.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(m=>medHTML(m)).join(""):'<div class="empty">لا توجد أدوية مسجلة بعد.</div>';
+ document.getElementById("medList").innerHTML=meds.length?meds.map(m=>`<div class="med-row">
+ <div class="med-info"><div class="med-icon">${m.type.split(" ")[0]}</div><div><strong>${escapeHTML(m.name)}</strong><small>${escapeHTML(m.dose)} · ${m.time}</small></div></div>
+ <div class="actions"><button class="btn soft small" onclick="editMed('${m.id}')">تعديل</button><button class="btn red small" onclick="deleteMed('${m.id}')">حذف</button></div>
+ </div>`).join(""):'<div class="empty">لا توجد أدوية مسجلة بعد. ابدأ بإضافة دوائك.</div>';
+
+ document.getElementById("scheduleList").innerHTML=meds.length?meds.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(m=>medHTML(m)).join(""):'<div class="empty">أضف أدويتك لعرض جدول الجرعات.</div>';
+
+ document.getElementById("historyRows").innerHTML=history.map(h=>`<tr><td>${escapeHTML(h.name)}</td><td>${h.status==="taken"?"تم التأكيد":"تم التأجيل"}</td><td>${escapeHTML(h.date)}</td></tr>`).join("");
+ document.getElementById("historyEmpty").style.display=history.length?"none":"block";
+
+ document.getElementById("readingList").innerHTML=readings.length?readings.slice().reverse().map(r=>`<div class="record-row"><div><b>${escapeHTML(r.value)} ${escapeHTML(r.unit)}</b><small style="display:block;color:var(--muted);margin-top:5px">${escapeHTML(r.context)} · ${escapeHTML(r.date)}</small></div><span class="status">مسجلة</span></div>`).join(""):'<div class="empty">لا توجد قراءات مسجلة.</div>';
+ if(document.getElementById("glucose").classList.contains("active"))drawChart();
+}
+document.getElementById("glucoseForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ readings.push({
+  value:Number(document.getElementById("gValue").value),
+  unit:document.getElementById("gUnit").value,
+  context:document.getElementById("gContext").value,
+  date:document.getElementById("gDate").value
+ });
+ save("db_readings",readings);this.reset();
+ document.getElementById("gDate").value=new Date().toISOString().slice(0,16);
+ render();toast("تم حفظ القراءة");
+});
+
+function drawChart(){
+ const canvas=document.getElementById("chart");
+ const ctx=canvas.getContext("2d");
+ const w=canvas.width=canvas.clientWidth*2;
+ const h=canvas.height=canvas.clientHeight*2;
+ ctx.clearRect(0,0,w,h);
+ const data=readings.slice(-8);
+ if(!data.length){
+  ctx.fillStyle="#82948d";ctx.font="24px Arial";ctx.textAlign="center";
+  ctx.fillText("ستظهر القراءات هنا بعد تسجيلها",w/2,h/2);return;
+ }
+ const vals=data.map(x=>x.value);
+ const min=Math.min(...vals)*.85,max=Math.max(...vals)*1.15;
+ const range=max-min||1;
+ const left=45,right=w-25,top=25,bottom=h-40;
+ ctx.strokeStyle="#e5eee9";ctx.lineWidth=2;
+ for(let i=0;i<4;i++){
+  let y=top+(bottom-top)*i/3;
+  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();
+ }
+ const pts=data.map((d,i)=>({
+  x:left+(right-left)*(data.length===1?.5:i/(data.length-1)),
+  y:bottom-(d.value-min)/range*(bottom-top)
+ }));
+ ctx.beginPath();ctx.strokeStyle="#087d68";ctx.lineWidth=5;
+ pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+ ctx.stroke();
+ pts.forEach((p,i)=>{
+  ctx.beginPath();ctx.fillStyle="#087d68";ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#203c35";ctx.font="19px Arial";ctx.textAlign="center";
+  ctx.fillText(data[i].value,p.x,p.y-14);
+ });
+}
+
+const questions=[
+ {q:"ما أفضل طريقة لتنظيم مواعيد الأدوية؟",a:["الاعتماد على الذاكرة فقط","استخدام جدول أو تذكير منظم","تغيير المواعيد عشوائياً"],correct:1,why:"الجدول والتذكير يساعدان على تنظيم الروتين."},
+ {q:"ماذا تفعل إذا أردت تغيير جرعة دوائك؟",a:["أغيرها بنفسي","أتوقف عن الدواء","أراجع الطبيب أو الصيدلي"],correct:2,why:"تغيير الجرعات يجب أن يكون بتوجيه المختص."},
+ {q:"ما فائدة تسجيل القراءات الصحية؟",a:["تنظيم المعلومات لمراجعتها","تشخيص المرض تلقائياً","استبدال الطبيب"],correct:0,why:"السجل يساعد على متابعة المعلومات ومناقشتها مع المختص."},
+ {q:"هل تأكيد الجرعة في الموقع يثبت تناول الدواء؟",a:["نعم دائماً","لا، إنه تسجيل يدوي فقط","يثبت ذلك بالكاميرا"],correct:1,why:"التأكيد يسجل اختيار المستخدم ولا يثبت تناول الدواء."}
+];
+function showQuestion(){
+ const q=questions[quizIndex%questions.length];
+ document.getElementById("question").textContent=q.q;
+ document.getElementById("quizResult").textContent="";
+ document.getElementById("answers").innerHTML=q.a.map((a,i)=>`<button class="quiz-option" onclick="answer(${i})">${a}</button>`).join("");
+}
+function answer(i){
+ const q=questions[quizIndex%questions.length];
+ document.querySelectorAll(".quiz-option").forEach((b,j)=>b.disabled=true);
+ document.getElementById("quizResult").textContent=(i===q.correct?"✓ إجابة صحيحة! ":"ليست الإجابة الصحيحة. ")+q.why;
+}
+function nextQuestion(){quizIndex++;showQuestion()}
+function tip(text){toast(text)}
+const tips=[
+ "احتفظ بقائمة محدثة بأدويتك ومواعيدها.",
+ "تذكّر اتباع تعليمات الطبيب أو الصيدلي بشأن أدويتك.",
+ "خصص وقتاً لمراجعة سجل قراءاتك مع مختص الرعاية الصحية.",
+ "التنظيم اليومي يساعدك على متابعة روتينك."
+];
+function newTip(){tip(tips[Math.floor(Math.random()*tips.length)])}
+function deviceTest(){toast("تم اختبار واجهة الجهاز بنجاح — لا يوجد جهاز حقيقي متصل.")}
+
+function exportData(){
+ const data={medications:meds,doseHistory:history,glucoseReadings:readings};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="dose-buddy-data.json";a.click();
+ URL.revokeObjectURL(url);toast("تم تجهيز ملف بياناتك");
+}
+function clearAll(){
+ if(!confirm("هل أنت متأكد من حذف جميع البيانات؟"))return;
+ meds=[];history=[];readings=[];
+ save("db_meds",meds);save("db_history",history);save("db_readings",readings);
+ render();toast("تم حذف البيانات");
+}
+function askNotify(){
+ if(!("Notification" in window)){toast("المتصفح لا يدعم الإشعارات");return}
+ Notification.requestPermission().then(p=>toast(p==="granted"?"تم السماح بالإشعارات":"لم يتم السماح بالإشعارات"));
+}
+function toggleLang(){
+ setLang(lang==="ar"?"en":"ar");
+}
+function setLang(value){
+ lang=value;
+ document.documentElement.lang=value;
+ document.documentElement.dir=value==="ar"?"rtl":"ltr";
+ document.getElementById("language").value=value;
+ document.getElementById("welcome").textContent=value==="ar"?"مرحباً بك في DOSE BUDDY":"Welcome to DOSE BUDDY";
+ document.querySelectorAll(".nav-btn .nav-text").forEach((el,i)=>{
+  const ar=["الرئيسية","إدارة الأدوية","جدول الجرعات","سجل الجرعات","متابعة السكر","الجهاز الذكي","ركن العافية والترفيه","الإعدادات"];
+  const en=["Dashboard","Medications","Dose Schedule","Dose History","Glucose Tracking","Smart Device","Wellness & Fun","Settings"];
+  el.textContent=(value==="ar"?ar:en)[i];
+ });
+ document.getElementById("date").textContent=today();
+ toast(value==="ar"?"تم اختيار العربية":"English selected");
+}
+
+/* START */
+
+document.getElementById("gDate").value=new Date().toISOString().slice(0,16);
+showQuestion();
+render();
+setInterval(()=>{
+ document.getElementById("clock").textContent=new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+},1000);
+</script>
+</body>
+</html>
